@@ -152,6 +152,8 @@
     .node-section .node-bg{fill:#eff6fc;stroke:#b8cee1}
     .node-criterion .node-bg{fill:#fff;stroke:#c9d8e6}
     .node-combo .node-bg{fill:var(--soft-purple);stroke:#d4c8e6}
+    .node-decision .node-bg{fill:#fff8ec;stroke:#e3c496}
+    .node-option .node-bg{fill:#fffdf9;stroke:#ddd6ca}
     .node-figure .node-bg{fill:#fff;stroke:#c9d8e6}
     .node-figure.pending .node-bg{fill:#f8fafb;stroke:#b9c6d2;stroke-dasharray:5 4}
     .node-note .node-bg{fill:#fbfdff;stroke:#d5e2ee}
@@ -216,6 +218,29 @@
     .source-box strong{display:block;color:#26445d;font-size:11px;margin-bottom:5px}
     .source-box ul{margin:0;padding-left:16px}
     .source-box li{margin:2px 0}
+    .provenance-box{border:1px solid #d8e4ef;background:#f8fbfe;border-radius:12px;padding:12px;margin:4px 0 16px}
+    .provenance-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:10px}
+    .provenance-head strong{font-size:11.5px;color:#26445d}
+    .provenance-head span{font-size:9.5px;color:#8494a3}
+    .provenance-chain{display:grid}
+    .provenance-step{
+      display:grid;grid-template-columns:86px minmax(0,1fr);gap:10px;
+      position:relative;padding:0 0 9px;
+    }
+    .provenance-step:last-child{padding-bottom:0}
+    .provenance-step:not(:last-child)::after{
+      content:"";position:absolute;left:32px;top:22px;bottom:-2px;
+      border-left:1px dashed #cbdbe8;
+    }
+    .provenance-label{
+      z-index:1;align-self:start;display:inline-flex;align-items:center;justify-content:center;
+      min-height:23px;padding:3px 6px;border-radius:7px;background:#eaf3fb;
+      color:#365a78;font-size:9.8px;font-weight:700;line-height:1.25;
+    }
+    .provenance-value{
+      padding-top:2px;color:#40566b;font-size:10.9px;line-height:1.65;
+      overflow-wrap:anywhere;
+    }
     .drawer-section-label{font-size:10.5px;color:#7b8b9a;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:2px 0 8px}
 
     .detail-table-wrap{overflow:auto;border:1px solid #dce7f0;border-radius:10px;margin:4px 0 16px;max-width:100%}
@@ -378,6 +403,11 @@
       .icon-btn{width:40px;height:40px}
       .stat-table{grid-template-columns:98px minmax(0,1fr)}
       .stat-k,.stat-v{padding:8px 9px;font-size:11.2px}
+      .provenance-box{padding:11px 10px}
+      .provenance-step{grid-template-columns:70px minmax(0,1fr);gap:8px}
+      .provenance-step:not(:last-child)::after{left:27px}
+      .provenance-label{font-size:9.3px;padding:3px 4px}
+      .provenance-value{font-size:10.6px}
       .detail-table-wrap{overscroll-behavior-x:contain}
       .detail-table{min-width:430px}
       .drawer-backdrop{inset:0;z-index:44}
@@ -467,6 +497,7 @@
     <div class="drawer-body">
       <div id="drawerImageWrap"></div>
       <div class="action-row" id="drawerActions"></div>
+      <div id="drawerProvenance"></div>
       <div id="drawerSource"></div>
       <div id="drawerTable"></div>
       <div id="drawerStats"></div>
@@ -522,6 +553,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="tree_data.js"></script>
+  <script src="provenance_data.js"></script>
   <script src="tree_app.js"></script>
 </body>
 </html>

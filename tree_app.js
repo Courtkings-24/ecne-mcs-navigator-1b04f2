@@ -5,6 +5,18 @@
     document.body.innerHTML = "<p style='padding:30px;font-family:sans-serif'>缺少 tree_data.js，无法加载导航树。</p>";
     return;
   }
+  const PROVENANCE = window.MCS_PROVENANCE || { fields: [], byId: {} };
+  const PROVENANCE_FIELDS = PROVENANCE.fields && PROVENANCE.fields.length
+    ? PROVENANCE.fields
+    : [
+      ["output", "图表成品"],
+      ["script", "绘图脚本"],
+      ["derived", "派生统计表"],
+      ["direct", "直接输入"],
+      ["upstream", "上游追踪"],
+      ["raw", "原始数据"],
+      ["scope", "口径与筛选"]
+    ];
 
   const NS = "http://www.w3.org/2000/svg";
   const $ = (id) => document.getElementById(id);
@@ -425,6 +437,8 @@
     if (node.kind === "root") return "#17324d";
     if (node.kind === "section") return "#2e75b6";
     if (node.kind === "combo") return "#7c6f9e";
+    if (node.kind === "decision") return "#b7791f";
+    if (node.kind === "option") return "#8b7354";
     if (node.kind === "figure") return "#2e75b6";
     return "#8aa4b8";
   }
@@ -633,6 +647,10 @@
     state.selectedId = node.id;
     const kicker = node.figureNo
       ? `${node.figureNo} · ${node.status === "pending" ? "待生成" : "可查看"}`
+      : node.kind === "option"
+        ? "判据选项"
+        : node.kind === "decision"
+          ? "判据分歧"
       : node.kind === "criterion" || node.kind === "combo"
         ? "判据 / 分支"
         : node.table ? "对比表" : "文字节点";
@@ -680,7 +698,7 @@
         cmpBtn.addEventListener("click", () => openCompare(node.compareGroup, node.id));
         actions.appendChild(cmpBtn);
       }
-    } else if (!node.table) {
+    } else if (node.kind === "figure" && node.status === "pending") {
       const pending = document.createElement("div");
       pending.className = "pending-box";
       pending.innerHTML = "<strong>该图尚未生成</strong><span>" + escapeHtml(node.note || "待相关统计完成后生成。") + "</span>";
@@ -695,7 +713,9 @@
       }
     }
 
-    renderSource(node.source || SOURCE_BY_ID[node.id]);
+    const provenance = node.provenance || PROVENANCE.byId[node.id];
+    renderProvenance(provenance);
+    renderSource(provenance ? null : (node.source || SOURCE_BY_ID[node.id]));
     renderDetailTable(node.table);
     const statsWrap = $("drawerStats");
     clearNode(statsWrap);
@@ -741,6 +761,45 @@
       ul.appendChild(li);
     });
     box.appendChild(ul);
+    wrap.appendChild(box);
+  }
+
+  function renderProvenance(data) {
+    const wrap = $("drawerProvenance");
+    clearNode(wrap);
+    if (!data) return;
+
+    const box = document.createElement("div");
+    box.className = "provenance-box";
+    box.setAttribute("aria-label", "完整数据溯源链");
+
+    const head = document.createElement("div");
+    head.className = "provenance-head";
+    const title = document.createElement("strong");
+    title.textContent = "完整数据溯源链";
+    const hint = document.createElement("span");
+    hint.textContent = "从成品到原始数据";
+    head.appendChild(title);
+    head.appendChild(hint);
+    box.appendChild(head);
+
+    const chain = document.createElement("div");
+    chain.className = "provenance-chain";
+    PROVENANCE_FIELDS.forEach(([key, label]) => {
+      if (!data[key]) return;
+      const step = document.createElement("div");
+      step.className = "provenance-step";
+      const keyEl = document.createElement("span");
+      keyEl.className = "provenance-label";
+      keyEl.textContent = label;
+      const valueEl = document.createElement("span");
+      valueEl.className = "provenance-value";
+      valueEl.textContent = data[key];
+      step.appendChild(keyEl);
+      step.appendChild(valueEl);
+      chain.appendChild(step);
+    });
+    box.appendChild(chain);
     wrap.appendChild(box);
   }
 
